@@ -8,37 +8,33 @@ import java.io.File;
 public class HuffModel implements IHuffModel
 {
 
-
-    @java.lang.Override
     public void showCodings()
     {
+        // TODO Auto-generated method stub
 
     }
 
-    @java.lang.Override
-    public void showCounts() {
+    public void showCounts()
+    {
+        // TODO Auto-generated method stub
 
     }
 
-    @java.lang.Override
     public void initialize(InputStream stream)
     {
-        
+        // TODO Auto-generated method stub
 
     }
 
-    @java.lang.Override
-    public void write(InputStream stream, File file, boolean force) {
+    public void write(InputStream stream, File file, boolean force)
+    {
+        // TODO Auto-generated method stub
 
     }
 
-    @java.lang.Override
-    public void setViewer(HuffViewer viewer) {
-
-    }
-
-    @java.lang.Override
-    public void uncompress(InputStream in, OutputStream out) {
+    public void uncompress(InputStream in, OutputStream out)
+    {
+        // TODO Auto-generated method stub
 
     }
 }

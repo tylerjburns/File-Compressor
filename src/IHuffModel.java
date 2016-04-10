@@ -14,24 +14,24 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.File;
 
-public interface IHuffModel extends IHuffConstants {
+public interface IHuffModel<HuffViewer> extends IHuffConstants {
     /**
      * Display all encodings (via the associated view).
      */
     public void showCodings();
-    
+
     /**
      * Display all chunk/character counts (via the associated view).
      */
     public void showCounts();
-    
+
     /**
      * Initialize state via an input stream. The stream most
      * likely comes from a view, it's NOT a BitInputStream
      * @param stream is an input stream for initializing state of this model
      */
     public void initialize(InputStream stream);
-    
+
     /**
      * Write a compressed version of the data read
      * by the InputStream parameter, -- if the stream is
@@ -44,18 +44,12 @@ public interface IHuffModel extends IHuffConstants {
      * @param force indicates if compression forced
      */
     public void write(InputStream stream, File file, boolean force);
-    
-    /**
-     * Make sure this model communicates with some view.
-     * @param viewer is the view for communicating.
-     */
-    public void setViewer(HuffViewer viewer);
-    
+
     /**
      * Uncompress a previously compressed file.
      * @param in is the compressed file to be uncompressed
      * @param out is where the uncompressed bits will be written
      */
     public void uncompress(InputStream in, OutputStream out);
-    
+
 }
