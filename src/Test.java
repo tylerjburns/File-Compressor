@@ -8,11 +8,10 @@ public class Test extends TestCase
 {
     public static void main(String [] args) throws IOException
     {
-        File file = new File("test.txt");
         FileInputStream text;
         try
         {
-            text = new FileInputStream(file);
+            text = new FileInputStream("test.txt");
         }
         catch (FileNotFoundException e)
         {
