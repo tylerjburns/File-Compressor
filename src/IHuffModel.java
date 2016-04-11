@@ -13,6 +13,7 @@
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.File;
+import java.io.IOException;
 
 public interface IHuffModel<HuffViewer> extends IHuffConstants {
     /**
@@ -29,8 +30,9 @@ public interface IHuffModel<HuffViewer> extends IHuffConstants {
      * Initialize state via an input stream. The stream most
      * likely comes from a view, it's NOT a BitInputStream
      * @param stream is an input stream for initializing state of this model
+     * @throws IOException thrown if something catastrophic happens
      */
-    public void initialize(InputStream stream);
+    public void initialize(InputStream stream) throws IOException;
 
     /**
      * Write a compressed version of the data read

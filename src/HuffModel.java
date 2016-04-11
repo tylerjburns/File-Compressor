@@ -5,8 +5,10 @@
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.File;
+import java.io.IOException;
 public class HuffModel implements IHuffModel
 {
+    CharCount counter;
 
     public void showCodings()
     {
@@ -20,10 +22,28 @@ public class HuffModel implements IHuffModel
 
     }
 
-    public void initialize(InputStream stream)
+    public void initialize(InputStream stream) throws IOException
     {
-        // TODO Auto-generated method stub
-
+        int[] charCount = new int[256];
+        BitInputStream input = new BitInputStream(stream);
+        try
+        {
+            while(input.read() != -1)
+            {
+                charCount[input.read()]++;
+            }
+            System.out.println("Finished reading document!");
+            input.close();
+        }
+        catch (IOException e)
+        {
+            input.close();
+            throw e;
+        }
+        for (int i = 0; i<charCount.length; i++)
+        {
+            System.out.println((char)i + ": " + charCount[i]);
+        }
     }
 
     public void write(InputStream stream, File file, boolean force)
