@@ -12,7 +12,6 @@ import java.io.IOException;
 public class HuffModel
     implements IHuffModel
 {
-    CharCount counter;
 
 
     public void showCodings()
