@@ -1,3 +1,9 @@
+#Git files
+/bin
+/.settings
+/.idea
+.class
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
