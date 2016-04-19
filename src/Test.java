@@ -2,10 +2,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import student.TestCase;
 
 public class Test
-    extends TestCase
+
 {
     private static int        count;
     private static HuffTree[] htarr;
@@ -19,7 +18,7 @@ public class Test
         FileInputStream text;
         try
         {
-            text = new FileInputStream("C:\\Users\\Tibs\\Desktop\\test.txt");
+            text = new FileInputStream("//Users//samjoynson//GitHub//File-Compressor//src//test.txt");
         }
         catch (FileNotFoundException e)
         {
@@ -28,6 +27,10 @@ public class Test
         }
         HuffModel testModel = new HuffModel();
         testModel.initialize(text);
+
+        testModel.showCodings();
+
+
 
     }
 }

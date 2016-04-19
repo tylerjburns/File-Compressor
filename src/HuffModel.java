@@ -8,23 +8,25 @@ import java.io.OutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.*;
 
 public class HuffModel
     implements IHuffModel
 {
-    private static int        count;
-    private static HuffTree[] htarr;
-    private static HuffTree[] htarr2;
-    private static MinHeap    Hheap;
+    private  int        count;
+    private  HuffTree[] htarr;
+    private  HuffTree[] htarr2;
+    private  MinHeap    Hheap;
+    Stack<String> stack = new Stack<String>();
 
-    static HuffTree buildTree()
+    public HuffTree buildTree()
     {
         HuffTree tmp1, tmp2, tmp3 = null;
 
         while (Hheap.heapsize() > 1)
         { // While two items left
-            tmp1 = Hheap.removemin();
-            tmp2 = Hheap.removemin();
+            tmp1 = (HuffTree)Hheap.removemin();
+            tmp2 = (HuffTree) Hheap.removemin();
             tmp3 = new HuffTree(
                 tmp1.root(),
                 tmp2.root(),
@@ -48,6 +50,7 @@ public class HuffModel
                 // System.out.println((char)i + ": " + CharCounter.characters[i]);
             }
         }
+
         htarr2 = new HuffTree[count];
         count = 0;
         for (int i = 0; i < 256; i++)
@@ -58,13 +61,50 @@ public class HuffModel
                 count++;
             }
         }
+
         Hheap = new MinHeap(htarr2, count, count);
         HuffTree charTree = buildTree();
-        String[] encodings = new String[count];
-        for (int i = 0; i<count; i++)
+
+        preOrderTrav(charTree.root());
+
+
+    }
+
+
+    public void preOrderTrav(HuffBaseNode node)
+    {
+
+        if (node == null)
         {
-            encodings[i] =
+            return;
         }
+
+        if (node.isLeaf())
+        {
+            String z = new String();
+            for (int i=0; i<stack.size();i++)
+            {
+                z = z + stack.get(i);
+            }
+
+            System.out.println(((HuffLeafNode)node).element() + " " +  z);
+
+            stack.pop();
+        }
+        else
+        {
+            stack.push("0");
+            preOrderTrav(((HuffInternalNode)node).left());
+            stack.push("1");
+            preOrderTrav(((HuffInternalNode)node).right());
+            if (stack.size() > 0)
+            {
+                stack.pop();
+            }
+        }
+
+        //Use a stack to keep track of where
+
     }
 
 
@@ -83,6 +123,8 @@ public class HuffModel
         BitInputStream bits = new BitInputStream(stream);
         CharCounter charCount = new CharCounter();
         charCount.countAll(bits);
+
+
     }
 
 

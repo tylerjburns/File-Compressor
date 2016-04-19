@@ -9,9 +9,9 @@ class HuffTree implements Comparable {
     { root = new HuffInternalNode(l, r, wt); }
 
   HuffBaseNode root() { return root; }
-  int weight() // Weight of tree is weight of root
+  public int weight() // Weight of tree is weight of root
     { return root.weight(); }
-  int compareTo(Object t) {
+  public int compareTo(Object t) {
     HuffTree that = (HuffTree)t;
     if (root.weight() < that.weight()) return -1;
     else if (root.weight() == that.weight()) return 0;

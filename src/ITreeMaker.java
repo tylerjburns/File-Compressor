@@ -18,5 +18,5 @@ public interface ITreeMaker {
      * Return the root of a Huffman/coding tree.
      * @return root of a tree
      */
-    public TreeNode makeRoot();
+    //public TreeNode makeRoot();
 }
