@@ -7,6 +7,12 @@ import student.TestCase;
 public class Test
     extends TestCase
 {
+    private static int        count;
+    private static HuffTree[] htarr;
+    private static HuffTree[] htarr2;
+    private static MinHeap    Hheap;
+
+
     public static void main(String[] args)
         throws IOException
     {
@@ -22,11 +28,6 @@ public class Test
         }
         HuffModel testModel = new HuffModel();
         testModel.initialize(text);
-        for (int i = 0; i < 256; i++)
-        {
-            //comment in or out if you want count of all chars or not
-            if(CharCounter.characters[i] != 0)
-                System.out.println((char)i + ": " + CharCounter.characters[i]);
-        }
+
     }
 }
