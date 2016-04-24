@@ -4,7 +4,7 @@ import java.io.InputStream;
 public class CharCounter
     implements ICharCounter
 {
-    public static int[] characters = new int[256];
+    public static int[] characters = new int[257];
 
 
     public int getCount(int ch)
@@ -23,6 +23,7 @@ public class CharCounter
         {
             add(inbits);
         }
+        characters[256] = PSEUDO_EOF;
         bitStream.close();
         return 0; // unused return
     }

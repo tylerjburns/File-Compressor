@@ -21,6 +21,7 @@ public class HuffModel
     private String[]   encodings;
     private int        encodeCount = 0;
     Stack<String>      stack       = new Stack<String>();
+    private HuffTree charTree;
 
 
 
@@ -44,9 +45,9 @@ public class HuffModel
 
     public void showCodings()
     {
-        htarr = new HuffTree[256];
+        htarr = new HuffTree[257];
         count = 0;
-        for (int i = 0; i < 256; i++)
+        for (int i = 0; i < 257; i++)
         {
             htarr[i] = new HuffTree((char)(i), CharCounter.characters[i]);
             // comment in or out if you want count of all chars or not
@@ -60,7 +61,7 @@ public class HuffModel
 
         htarr2 = new HuffTree[count];
         count = 0;
-        for (int i = 0; i < 256; i++)
+        for (int i = 0; i < 257; i++)
         {
             if (htarr[i].weight() != 0)
             {
@@ -70,7 +71,7 @@ public class HuffModel
         }
 
         Hheap = new MinHeap(htarr2, count, count);
-        HuffTree charTree = buildTree();
+        charTree = buildTree();
 
         preOrderTrav(charTree.root());
 
@@ -134,12 +135,55 @@ public class HuffModel
     }
 
 
-    public void write(InputStream stream, String file, boolean force)
+    public void write(InputStream stream, String file, boolean force) throws IOException
     {
-      BitOutPutStream out = new BitOutPutStream("//Users//samjoynson//GitHub//File-Compressor//src//test.txt");
-      out.write(BITS_PER_INT, MAGIC_NUMBER)
+      BitOutputStream out = new BitOutputStream("//Users//samjoynson//GitHub//File-Compressor//src//test.txt");
+      out.write(BITS_PER_INT, MAGIC_NUMBER);
+      traverseAndWrite(charTree.root(), out);
+      out.write(1, 1);
+      out.write(9, PSEUDO_EOF);
 
+      int inbits = 0;
+      BitInputStream bit = new BitInputStream(stream);
+      while ((inbits = bit.read(BITS_PER_WORD)) != -1)
+      {
 
+          // get the code computed in part II
+          for(int i = 0; i<count; i++)
+          {
+             // if(inbits == htarr2[i].)
+          }
+
+         // convert that code into an array of chars using .toCharArray() method
+
+         //go through the array of char and write each char (cast as int) using 1 bit
+
+         //out.write(1, (int)char);
+
+      }
+      out.close();
+    }
+
+    public void traverseAndWrite(HuffBaseNode node, BitOutputStream out)
+    {
+        if (node != null)
+        {
+            if(node.isLeaf())
+            {
+                //when leaf node
+                out.write(1, 1);
+                out.write(9, ((HuffLeafNode)node).element());
+                return;
+            }
+            else
+            {
+                //when internal node
+                out.write(1, 0);
+                traverseAndWrite(((HuffInternalNode)node).left(), out);
+                traverseAndWrite(((HuffInternalNode)node).right(), out);
+            }
+        }
+        return;
     }
 
 

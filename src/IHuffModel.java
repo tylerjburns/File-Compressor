@@ -44,8 +44,9 @@ public interface IHuffModel<HuffViewer> extends IHuffConstants {
      * @param stream is the input stream to be compressed
      * @param file specifes the file to be written with compressed data
      * @param force indicates if compression forced
+     * @throws IOException
      */
-    public void write(InputStream stream, File file, boolean force);
+    public void write(InputStream stream, String file, boolean force) throws IOException;
 
     /**
      * Uncompress a previously compressed file.
