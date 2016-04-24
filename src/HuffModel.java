@@ -134,9 +134,11 @@ public class HuffModel
     }
 
 
-    public void write(InputStream stream, File file, boolean force)
+    public void write(InputStream stream, String file, boolean force)
     {
-        // TODO Auto-generated method stub
+      BitOutPutStream out = new BitOutPutStream("//Users//samjoynson//GitHub//File-Compressor//src//test.txt");
+      out.write(BITS_PER_INT, MAGIC_NUMBER)
+
 
     }
 
