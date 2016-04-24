@@ -8,6 +8,7 @@ import java.io.OutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.Array
 import java.util.*;
 
 public class HuffModel
@@ -18,6 +19,7 @@ public class HuffModel
     private  HuffTree[] htarr2;
     private  MinHeap    Hheap;
     Stack<String> stack = new Stack<String>();
+
 
     public HuffTree buildTree()
     {
