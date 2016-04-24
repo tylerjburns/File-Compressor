@@ -18,7 +18,8 @@ public class Test
         FileInputStream text;
         try
         {
-            text = new FileInputStream("//Users//samjoynson//GitHub//File-Compressor//src//test.txt");
+//            text = new FileInputStream("//Users//samjoynson//GitHub//File-Compressor//src//test.txt");
+            text = new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\test.txt");
         }
         catch (FileNotFoundException e)
         {

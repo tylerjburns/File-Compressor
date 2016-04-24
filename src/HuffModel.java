@@ -14,11 +14,14 @@ import java.util.*;
 public class HuffModel
     implements IHuffModel
 {
-    private  int        count;
-    private  HuffTree[] htarr;
-    private  HuffTree[] htarr2;
-    private  MinHeap    Hheap;
-    Stack<String> stack = new Stack<String>();
+    private int        count;
+    private HuffTree[] htarr;
+    private HuffTree[] htarr2;
+    private MinHeap    Hheap;
+    private String[]   encodings;
+    private int        encodeCount = 0;
+    Stack<String>      stack       = new Stack<String>();
+
 
 
     public HuffTree buildTree()
@@ -28,7 +31,7 @@ public class HuffModel
         while (Hheap.heapsize() > 1)
         { // While two items left
             tmp1 = (HuffTree)Hheap.removemin();
-            tmp2 = (HuffTree) Hheap.removemin();
+            tmp2 = (HuffTree)Hheap.removemin();
             tmp3 = new HuffTree(
                 tmp1.root(),
                 tmp2.root(),
@@ -37,6 +40,7 @@ public class HuffModel
         }
         return tmp3; // Return the tree
     }
+
 
     public void showCodings()
     {
@@ -49,7 +53,8 @@ public class HuffModel
             if (htarr[i].weight() != 0)
             {
                 count++;
-                // System.out.println((char)i + ": " + CharCounter.characters[i]);
+                // System.out.println((char)i + ": " +
+                // CharCounter.characters[i]);
             }
         }
 
@@ -69,13 +74,12 @@ public class HuffModel
 
         preOrderTrav(charTree.root());
 
-
     }
 
 
     public void preOrderTrav(HuffBaseNode node)
     {
-
+        encodings = new String[count];
         if (node == null)
         {
             return;
@@ -84,13 +88,14 @@ public class HuffModel
         if (node.isLeaf())
         {
             String z = new String();
-            for (int i=0; i<stack.size();i++)
+            for (int i = 0; i < stack.size(); i++)
             {
                 z = z + stack.get(i);
             }
 
-            System.out.println(((HuffLeafNode)node).element() + " " +  z);
-
+            System.out.println(((HuffLeafNode)node).element() + " " + z);
+            encodings[encodeCount] = z;
+            encodeCount++;
             stack.pop();
         }
         else
@@ -105,7 +110,7 @@ public class HuffModel
             }
         }
 
-        //Use a stack to keep track of where
+        // Use a stack to keep track of where
 
     }
 
@@ -125,7 +130,6 @@ public class HuffModel
         BitInputStream bits = new BitInputStream(stream);
         CharCounter charCount = new CharCounter();
         charCount.countAll(bits);
-
 
     }
 
