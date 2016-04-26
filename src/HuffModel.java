@@ -22,6 +22,7 @@ public class HuffModel
     private int        encodeCount = 0;
     Stack<String>      stack       = new Stack<String>();
     private HuffTree charTree;
+    private String[][] codeWithChar;
 
 
 
@@ -81,6 +82,7 @@ public class HuffModel
     public void preOrderTrav(HuffBaseNode node)
     {
         encodings = new String[count];
+        codeWithChar = new String[count][2];
         if (node == null)
         {
             return;
@@ -96,6 +98,8 @@ public class HuffModel
 
             System.out.println(((HuffLeafNode)node).element() + " " + z);
             encodings[encodeCount] = z;
+            codeWithChar[encodeCount][0] = "" + ((HuffLeafNode)node).element();
+            codeWithChar[encodeCount][1] = z;
             encodeCount++;
             stack.pop();
         }
@@ -131,13 +135,13 @@ public class HuffModel
         BitInputStream bits = new BitInputStream(stream);
         CharCounter charCount = new CharCounter();
         charCount.countAll(bits);
-
+        bits.close();
     }
 
 
     public void write(InputStream stream, String file, boolean force) throws IOException
     {
-      BitOutputStream out = new BitOutputStream("//Users//samjoynson//GitHub//File-Compressor//src//test.txt");
+      BitOutputStream out = new BitOutputStream(file);
       out.write(BITS_PER_INT, MAGIC_NUMBER);
       traverseAndWrite(charTree.root(), out);
       out.write(1, 1);
@@ -145,23 +149,35 @@ public class HuffModel
 
       int inbits = 0;
       BitInputStream bit = new BitInputStream(stream);
+      int big = bit.available();
+      System.out.println(big);
       while ((inbits = bit.read(BITS_PER_WORD)) != -1)
       {
-
+          String character = "";
+          String code = "";
           // get the code computed in part II
-          for(int i = 0; i<count; i++)
+          for (int i = 0; i<codeWithChar.length; i++)
           {
-             // if(inbits == htarr2[i].)
+              character = "" + ((char)inbits);
+              if (character.equals(codeWithChar[i][0]))
+              {
+                  code = codeWithChar[i][1];
+              }
           }
 
+
          // convert that code into an array of chars using .toCharArray() method
-
+          char[] codeArray = code.toCharArray();
          //go through the array of char and write each char (cast as int) using 1 bit
-
+          for (int i = 0; i<codeArray.length; i++)
+          {
+              out.write(1, (int)codeArray[i]);
+          }
          //out.write(1, (int)char);
 
       }
       out.close();
+      bit.close();
     }
 
     public void traverseAndWrite(HuffBaseNode node, BitOutputStream out)
