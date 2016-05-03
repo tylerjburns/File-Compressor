@@ -156,6 +156,9 @@ public class HuffModel
           String character = "";
           String code = "";
           // get the code computed in part II
+          //by searching the 2D array we created to hold the pairs
+
+          //Why doesn't this print the PSEUDO_EOF value on its own?
           for (int i = 0; i<codeWithChar.length; i++)
           {
               character = "" + ((char)inbits);
@@ -174,10 +177,16 @@ public class HuffModel
               out.write(1, (int)codeArray[i]);
           }
       }
+
+      //Here, outside the while loop, after it has printed all of the encodings
+      //create a string version of the PSEUDO_EOF value, and search for it in
+      //the 2D array. When found, get the corresponding encoding from the array
+      //and write it to the file.
+
+      //This also doesn't fix the "unexpected end of input file" error. Why?
       String PEOF = "" + ((char)PSEUDO_EOF);
       for (int i = 0; i<codeWithChar.length; i++)
       {
-//          String character = "" + ((char)inbits);
           if (PEOF.equals(codeWithChar[i][0]))
           {
               String code = codeWithChar[i][1];
@@ -227,7 +236,6 @@ public class HuffModel
         }
 
         HuffInternalNode treeNode = (HuffInternalNode)rebuildTree((BitInputStream)in);
-//        HuffTree rebuiltTree = new HuffTree(rootNode.left(), rootNode.right(), 1);
         HuffBaseNode tmp = treeNode;
 
         int bits;
@@ -248,7 +256,10 @@ public class HuffModel
                 {
                     tmp = ((HuffInternalNode)tmp).right();
                 }
-
+                // if it's a leaf, then grab the character from the leaf node
+                //check if it's the PSEUDO_EOF character
+                //if it's not, write the character
+                //if it is, break out of the while loop
                 if (tmp.isLeaf())
                 {
                     int character = ((HuffLeafNode)tmp).element();
