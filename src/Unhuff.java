@@ -5,33 +5,25 @@ import java.io.IOException;
 
 public class Unhuff
 {
-    private static FileInputStream compressedFile;
-    private static FileOutputStream uncompressedFile;
-    private static HuffModel unhuffer;
-
 
     public static void main(String[] args) throws IOException
     {
+        BitInputStream compressedFile = null;
+        BitOutputStream uncompressedFile = null;
+        HuffModel unhuffer = new HuffModel();
+
         try
         {
-            compressedFile = new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\output.txt");
+            compressedFile = new BitInputStream(new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\output.txt"));
+            uncompressedFile = new BitOutputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\uncompressed.txt");
+            unhuffer.uncompress(compressedFile, uncompressedFile);
+            compressedFile.close();
+            uncompressedFile.close();
         }
         catch (FileNotFoundException e)
         {
             e = new FileNotFoundException("No such file found!");
             throw e;
         }
-
-        try
-        {
-            uncompressedFile = new FileOutputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\uncompressed.txt");
-        }
-        catch (FileNotFoundException f)
-        {
-            f = new FileNotFoundException("No such file found!");
-            throw f;
-        }
-
-        unhuffer.uncompress(compressedFile, uncompressedFile);
     }
 }

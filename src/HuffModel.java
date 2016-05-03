@@ -150,7 +150,7 @@ public class HuffModel
       int inbits = 0;
       BitInputStream bit = new BitInputStream(stream);
       int big = bit.available();
-      System.out.println(big);
+
       while ((inbits = bit.read(BITS_PER_WORD)) != -1)
       {
           String character = "";
@@ -173,8 +173,20 @@ public class HuffModel
           {
               out.write(1, (int)codeArray[i]);
           }
-         //out.write(1, (int)char);
-
+      }
+      String PEOF = "" + ((char)PSEUDO_EOF);
+      for (int i = 0; i<codeWithChar.length; i++)
+      {
+//          String character = "" + ((char)inbits);
+          if (PEOF.equals(codeWithChar[i][0]))
+          {
+              String code = codeWithChar[i][1];
+              char[] codeArray = code.toCharArray();
+              for (int x = 0; x<codeArray.length; x++)
+              {
+                  out.write(1, (int)codeArray[x]);
+              }
+          }
       }
       out.close();
       bit.close();
@@ -205,54 +217,47 @@ public class HuffModel
 
     public void uncompress(InputStream in, OutputStream out) throws IOException
     {
-        int magic = ((BitInputStream)in).read(BITS_PER_INT);
+        BitInputStream bis = (BitInputStream)in;
+        BitOutputStream bos = (BitOutputStream)out;
+
+
+        int magic = bis.read(BITS_PER_INT);
         if (magic != MAGIC_NUMBER){
             throw new IOException("magic number not right");
         }
 
-        HuffInternalNode rootNode = (HuffInternalNode)rebuildTree((BitInputStream)in);
-        HuffTree rebuiltTree = new HuffTree(rootNode.left(), rootNode.right(), 1);
+        HuffInternalNode treeNode = (HuffInternalNode)rebuildTree((BitInputStream)in);
+//        HuffTree rebuiltTree = new HuffTree(rootNode.left(), rootNode.right(), 1);
+        HuffBaseNode tmp = treeNode;
 
         int bits;
         while (true)
         {
-            bits = ((BitInputStream)in).read(1);
+            bits = bis.read(1);
             if (bits == -1)
             {
                 throw new IOException("unexpected end of input file");
             }
             else
             {
-                if(bits == 1)
+                if ( (bits & 1) == 0) // read a 0, go left in tree
                 {
-                    char character = (char)in.read();
+                    tmp = ((HuffInternalNode)tmp).left();
+                }
+                else // read a 1, go right in tree
+                {
+                    tmp = ((HuffInternalNode)tmp).right();
+                }
+
+                if (tmp.isLeaf())
+                {
+                    int character = ((HuffLeafNode)tmp).element();
                     if(character == PSEUDO_EOF)
                     {
                         break;
                     }
-                    out.write(character);
-                }
-
-                // use the zero/one value of the bit read
-                // to traverse Huffman coding tree
-                // if a leaf is reached, decode the character and print UNLESS
-                // the character is pseudo-EOF, then decompression done
-
-                if ( (bits & 1) == 0) // read a 0, go left in tree
-                {
-
-                }
-                else // read a 1, go right in tree
-                {
-
-                }
-
-                if (at leaf-node in tree)
-                {
-                    if (leaf-node stores pseudo-eof char)
-                        break; // out of loop
-                    else
-                        write character stored in leaf-node
+                    bos.write(BITS_PER_WORD, character);
+                    tmp = treeNode;
                 }
             }
         }
@@ -264,16 +269,20 @@ public class HuffModel
     {
         if(in.read(1) == 0)
         {
-            return new HuffInternalNode(rebuildTree(in), rebuildTree(in), count);
+            return new HuffInternalNode(rebuildTree(in), rebuildTree(in), 0);
         }
-        else
+        else if(in.read(1) == 1)
         {
-            char value = (char)in.read(9);
+            int value = in.read(9);
             if(value == PSEUDO_EOF)
             {
                 return null;
             }
-            return new HuffLeafNode(value, 1);
+            return new HuffLeafNode((char)value, 0);
+        }
+        else
+        {
+            return null;
         }
     }
 }
