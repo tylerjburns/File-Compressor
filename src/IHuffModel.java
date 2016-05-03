@@ -52,7 +52,8 @@ public interface IHuffModel<HuffViewer> extends IHuffConstants {
      * Uncompress a previously compressed file.
      * @param in is the compressed file to be uncompressed
      * @param out is where the uncompressed bits will be written
+     * @throws IOException
      */
-    public void uncompress(InputStream in, OutputStream out);
+    public void uncompress(InputStream in, OutputStream out) throws IOException;
 
 }

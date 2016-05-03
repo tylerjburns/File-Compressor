@@ -23,6 +23,7 @@ public class HuffModel
     Stack<String>      stack       = new Stack<String>();
     private HuffTree charTree;
     private String[][] codeWithChar;
+    private HuffInternalNode rootNode;
 
 
 
@@ -51,7 +52,6 @@ public class HuffModel
         for (int i = 0; i < 257; i++)
         {
             htarr[i] = new HuffTree((char)(i), CharCounter.characters[i]);
-            // comment in or out if you want count of all chars or not
             if (htarr[i].weight() != 0)
             {
                 count++;
@@ -203,9 +203,77 @@ public class HuffModel
     }
 
 
-    public void uncompress(InputStream in, OutputStream out)
+    public void uncompress(InputStream in, OutputStream out) throws IOException
     {
-        // TODO Auto-generated method stub
+        int magic = ((BitInputStream)in).read(BITS_PER_INT);
+        if (magic != MAGIC_NUMBER){
+            throw new IOException("magic number not right");
+        }
 
+        HuffInternalNode rootNode = (HuffInternalNode)rebuildTree((BitInputStream)in);
+        HuffTree rebuiltTree = new HuffTree(rootNode.left(), rootNode.right(), 1);
+
+        int bits;
+        while (true)
+        {
+            bits = ((BitInputStream)in).read(1);
+            if (bits == -1)
+            {
+                throw new IOException("unexpected end of input file");
+            }
+            else
+            {
+                if(bits == 1)
+                {
+                    char character = (char)in.read();
+                    if(character == PSEUDO_EOF)
+                    {
+                        break;
+                    }
+                    out.write(character);
+                }
+
+                // use the zero/one value of the bit read
+                // to traverse Huffman coding tree
+                // if a leaf is reached, decode the character and print UNLESS
+                // the character is pseudo-EOF, then decompression done
+
+                if ( (bits & 1) == 0) // read a 0, go left in tree
+                {
+
+                }
+                else // read a 1, go right in tree
+                {
+
+                }
+
+                if (at leaf-node in tree)
+                {
+                    if (leaf-node stores pseudo-eof char)
+                        break; // out of loop
+                    else
+                        write character stored in leaf-node
+                }
+            }
+        }
+        in.close();
+        out.close();
+    }
+
+    public HuffBaseNode rebuildTree(BitInputStream in) throws IOException
+    {
+        if(in.read(1) == 0)
+        {
+            return new HuffInternalNode(rebuildTree(in), rebuildTree(in), count);
+        }
+        else
+        {
+            char value = (char)in.read(9);
+            if(value == PSEUDO_EOF)
+            {
+                return null;
+            }
+            return new HuffLeafNode(value, 1);
+        }
     }
 }
