@@ -14,18 +14,20 @@ import java.util.*;
 public class HuffModel
     implements IHuffModel
 {
-    private int        count;
     private HuffTree[] htarr;
     private HuffTree[] htarr2;
     private MinHeap    Hheap;
     private String[]   encodings;
-    private int        encodeCount = 0;
-    Stack<String>      stack       = new Stack<String>();
+    private static int encodeCount;
     private HuffTree charTree;
-    private String[][] codeWithChar;
-    private HuffInternalNode rootNode;
+    public static String[][] codeWithChar;
+    private CharCounter charCount;
+    private Stack<String> stack = new Stack<String>();
 
+    public HuffModel()
+    {
 
+    }
 
     public HuffTree buildTree()
     {
@@ -47,42 +49,17 @@ public class HuffModel
 
     public void showCodings()
     {
-        htarr = new HuffTree[257];
-        count = 0;
-        for (int i = 0; i < 257; i++)
-        {
-            htarr[i] = new HuffTree((char)(i), CharCounter.characters[i]);
-            if (htarr[i].weight() != 0)
-            {
-                count++;
-                // System.out.println((char)i + ": " +
-                // CharCounter.characters[i]);
-            }
-        }
-
-        htarr2 = new HuffTree[count];
-        count = 0;
-        for (int i = 0; i < 257; i++)
-        {
-            if (htarr[i].weight() != 0)
-            {
-                htarr2[count] = htarr[i];
-                count++;
-            }
-        }
-
-        Hheap = new MinHeap(htarr2, count, count);
-        charTree = buildTree();
-
         preOrderTrav(charTree.root());
+        for(int i = 0; i < codeWithChar.length; i++)
+        {
+            System.out.println(codeWithChar[i][0] + ": " + codeWithChar[i][1]);
+        }
 
     }
 
 
     public void preOrderTrav(HuffBaseNode node)
     {
-        encodings = new String[count];
-        codeWithChar = new String[count][2];
         if (node == null)
         {
             return;
@@ -91,16 +68,26 @@ public class HuffModel
         if (node.isLeaf())
         {
             String z = new String();
+//            System.out.println(stack.size());
             for (int i = 0; i < stack.size(); i++)
             {
                 z = z + stack.get(i);
             }
 
-            System.out.println(((HuffLeafNode)node).element() + " " + z);
-            encodings[encodeCount] = z;
-            codeWithChar[encodeCount][0] = "" + ((HuffLeafNode)node).element();
-            codeWithChar[encodeCount][1] = z;
-            encodeCount++;
+//            encodings[encodeCount] = z;
+
+            for (int i = 0; i < codeWithChar.length; i++)
+            {
+                if (codeWithChar[i][0].equals("" + ((HuffLeafNode)node).element()))
+                {
+                    codeWithChar[i][1] = z;
+                }
+            }
+
+//            codeWithChar[encodeCount][0] = "" + ((HuffLeafNode)node).element();
+//            codeWithChar[encodeCount][1] = z;
+//            encodeCount++;
+
             stack.pop();
         }
         else
@@ -122,9 +109,9 @@ public class HuffModel
 
     public void showCounts()
     {
-        for (int i = 0; i < CharCounter.characters.length; i++)
+        for (int i = 0; i < NUM_CHARS; i++)
         {
-            System.out.println((char)i + ": " + CharCounter.characters[i]);
+            System.out.println((char)i + ": " + charCount.getCount(i));
         }
     }
 
@@ -133,8 +120,46 @@ public class HuffModel
         throws IOException
     {
         BitInputStream bits = new BitInputStream(stream);
-        CharCounter charCount = new CharCounter();
+        int count = 0;
+        charCount = new CharCounter();
         charCount.countAll(bits);
+        htarr = new HuffTree[NUM_CHARS];
+        for (int i = 0; i < NUM_CHARS; i++)
+        {
+            htarr[i] = new HuffTree((char)(i), charCount.getCount(i));
+            if (htarr[i].weight() != 0)
+            {
+//                codeWithChar[count][0] = "" + (char)i;
+                count++;
+            }
+        }
+        int countUnique = count;
+        htarr2 = new HuffTree[countUnique];
+        count = 0;
+        for (int i = 0; i < NUM_CHARS; i++)
+        {
+            if (htarr[i].weight() != 0)
+            {
+                htarr2[count] = htarr[i];
+                count++;
+            }
+        }
+        Hheap = new MinHeap(htarr2, countUnique, countUnique);
+        encodings = new String[countUnique];
+
+        codeWithChar = new String[countUnique][2];
+        count = 0;
+        for (int i = 0; i < NUM_CHARS; i++)
+        {
+            htarr[i] = new HuffTree((char)(i), charCount.getCount(i));
+            if (htarr[i].weight() != 0)
+            {
+                codeWithChar[count][0] = "" + (char)i;
+                count++;
+            }
+        }
+
+        charTree = buildTree();
         bits.close();
     }
 
@@ -144,12 +169,11 @@ public class HuffModel
       BitOutputStream out = new BitOutputStream(file);
       out.write(BITS_PER_INT, MAGIC_NUMBER);
       traverseAndWrite(charTree.root(), out);
-      out.write(1, 1);
-      out.write(9, PSEUDO_EOF);
+//      out.write(1, 1);
+//      out.write(9, PSEUDO_EOF);
 
       int inbits = 0;
       BitInputStream bit = new BitInputStream(stream);
-      int big = bit.available();
 
       while ((inbits = bit.read(BITS_PER_WORD)) != -1)
       {
@@ -176,6 +200,7 @@ public class HuffModel
           {
               out.write(1, (int)codeArray[i]);
           }
+//          System.out.println("Wrote all the bits.");
       }
 
       //Here, outside the while loop, after it has printed all of the encodings
@@ -185,6 +210,7 @@ public class HuffModel
 
       //This also doesn't fix the "unexpected end of input file" error. Why?
       String PEOF = "" + ((char)PSEUDO_EOF);
+      System.out.println("About to write PEOF encoding.");
       for (int i = 0; i<codeWithChar.length; i++)
       {
           if (PEOF.equals(codeWithChar[i][0]))
@@ -194,7 +220,9 @@ public class HuffModel
               for (int x = 0; x<codeArray.length; x++)
               {
                   out.write(1, (int)codeArray[x]);
+//                  System.out.print((int)codeArray[x]);
               }
+              System.out.println("Wrote PEOF encoding.");
           }
       }
       out.close();
@@ -236,6 +264,15 @@ public class HuffModel
         }
 
         HuffInternalNode treeNode = (HuffInternalNode)rebuildTree((BitInputStream)in);
+
+        preOrderTrav(treeNode);
+        for(int i = 0; i < codeWithChar.length; i++)
+        {
+            System.out.println(codeWithChar[i][0] + ": " + codeWithChar[i][1]);
+        }
+
+//        HuffTree rebuiltTree = new HuffTree(treeNode);
+//        rebuiltTree.traverseAndPrint(rebuiltTree.root());
         HuffBaseNode tmp = treeNode;
 
         int bits;
@@ -285,10 +322,6 @@ public class HuffModel
         else if(in.read(1) == 1)
         {
             int value = in.read(9);
-            if(value == PSEUDO_EOF)
-            {
-                return null;
-            }
             return new HuffLeafNode((char)value, 0);
         }
         else

@@ -18,6 +18,12 @@ class HuffTree
     }
 
 
+    HuffTree(HuffInternalNode rootNode)
+    {
+        this.root = rootNode;
+    }
+
+
     HuffBaseNode root()
     {
         return root;
@@ -40,4 +46,26 @@ class HuffTree
         else
             return 1;
     }
+
+//    public void traverseAndPrint(HuffBaseNode huffBaseNode)
+//    {
+//        if (huffBaseNode != null)
+//        {
+//            if(huffBaseNode.isLeaf())
+//            {
+//                //when leaf node
+//                System.out.print("1");
+//                return;
+//            }
+//            else
+//            {
+//                //when internal node
+//                System.out.print("0");
+//                traverseAndPrint(((HuffInternalNode)huffBaseNode).left());
+//                traverseAndPrint(((HuffInternalNode)huffBaseNode).right());
+//            }
+//        }
+//        System.out.println();
+//        return;
+//    }
 }

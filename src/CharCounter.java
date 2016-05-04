@@ -4,15 +4,31 @@ import java.io.InputStream;
 public class CharCounter
     implements ICharCounter
 {
-    public static int[] characters = new int[257];
 
+    private int[] characters;
+
+    public CharCounter()
+    {
+        this.characters = new int[NUM_CHARS];
+    }
 
     public int getCount(int ch)
     {
-        // TODO Auto-generated method stub
-        return 0;
+        return characters[ch];
     }
 
+    public int charCount()
+    {
+        int count = 0;
+        for (int i = 0; i < NUM_CHARS; i++)
+        {
+            if(getCount(i) != 0)
+            {
+                count++;
+            }
+        }
+        return count++;
+    }
 
     public int countAll(InputStream stream)
         throws IOException
@@ -23,7 +39,7 @@ public class CharCounter
         {
             add(inbits);
         }
-        characters[256] = PSEUDO_EOF;
+        characters[NUM_CHARS-1] = 1;
         bitStream.close();
         return 0; // unused return
     }
