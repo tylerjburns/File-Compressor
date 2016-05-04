@@ -1,12 +1,24 @@
 import java.io.IOException;
 import java.io.InputStream;
 
+// -------------------------------------------------------------------------
+/**
+ *  Counts characters in file using different methods and different filters.
+ *
+ *  @author Tyler
+ *  @version May 3, 2016
+ */
 public class CharCounter
     implements ICharCounter
 {
 
     private int[] characters;
 
+    // ----------------------------------------------------------
+    /**
+     * Create a new CharCounter object.
+     * Initializes the characters array.
+     */
     public CharCounter()
     {
         this.characters = new int[NUM_CHARS];
@@ -15,19 +27,6 @@ public class CharCounter
     public int getCount(int ch)
     {
         return characters[ch];
-    }
-
-    public int charCount()
-    {
-        int count = 0;
-        for (int i = 0; i < NUM_CHARS; i++)
-        {
-            if(getCount(i) != 0)
-            {
-                count++;
-            }
-        }
-        return count++;
     }
 
     public int countAll(InputStream stream)
