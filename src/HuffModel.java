@@ -117,6 +117,7 @@ public class HuffModel
                 if (codeWithChar[i][0]
                     .equals("" + ((HuffLeafNode)node).element()))
                 {
+                    System.out.println(z + "-" + codeWithChar[i][0]);
                     codeWithChar[i][1] = z;
                 }
             }
@@ -145,6 +146,27 @@ public class HuffModel
 
         // Use a stack to keep track of where
 
+    }
+
+    public void printTree(HuffBaseNode node)
+    {
+        if (node == null)
+        {
+            return;
+        }
+
+
+        if (node.isLeaf())
+        {
+            System.out.println(((HuffLeafNode)node).element());
+        }
+
+        else
+        {
+            System.out.println("internal");
+            printTree(((HuffInternalNode)node).left());
+            printTree(((HuffInternalNode)node).right());
+        }
     }
 
 
@@ -229,10 +251,10 @@ public class HuffModel
         int inbits = 0;
         BitInputStream bit = new BitInputStream(stream);
 
-        /*While the next byte does not return -1, filling the codeWithChar array
-        *by reading the bits and comparing them with the character position
-        *in the codeWithChar array, then putting the corresponding encoding
-        *in the right index.
+        /*While the next byte does not return -1, fill the codeWithChar array
+        * by reading the bits and comparing them with the character position
+        * in the codeWithChar array, then putting the corresponding encoding
+        * in the correct index.
         */
         while ((inbits = bit.read(BITS_PER_WORD)) != -1)
         {
@@ -240,8 +262,6 @@ public class HuffModel
             String code = "";
             // get the code computed in part II
             // by searching the 2D array we created to hold the pairs
-
-            // Why doesn't this print the PSEUDO_EOF value on its own?
             for (int i = 0; i < codeWithChar.length; i++)
             {
                 character = "" + ((char)inbits);
@@ -267,8 +287,6 @@ public class HuffModel
         // create a string version of the PSEUDO_EOF value, and search for it in
         // the 2D array. When found, get the corresponding encoding from the
         // array and write it to the file.
-
-        // This also doesn't fix the "unexpected end of input file" error. Why?
         String PEOF = "" + ((char)PSEUDO_EOF);
         System.out.println("About to write PEOF encoding.");
         for (int i = 0; i < codeWithChar.length; i++)
@@ -308,7 +326,7 @@ public class HuffModel
                 out.write(1, 1); //write a 1
                 //write the actual element
                 out.write(9, ((HuffLeafNode)node).element());
-                return;
+//                return;
             }
             else
             {
@@ -339,21 +357,13 @@ public class HuffModel
         }
 
         //Rebuild the tree from the file using the rebuild tree method
-        HuffInternalNode treeNode =
-            (HuffInternalNode)rebuildTree((BitInputStream)in);
+        HuffBaseNode treeNode =
+            rebuildTree((BitInputStream)in);
 
-        //THIS IS SOLELY FOR TESTING PURPOSES.
-        //REMOVE WHEN DONE TESTING.
-        //This is supposed to do a preorder traversal of the rebuilt tree, then
-        //print the encodings, but the encodings keep coming out terribly wrong.
+
         preOrderTrav(treeNode);
-        for (int i = 0; i < codeWithChar.length; i++)
-        {
-            System.out.println(codeWithChar[i][0] + ": " + codeWithChar[i][1]);
-        }
+//        printTree(treeNode);
 
-// HuffTree rebuiltTree = new HuffTree(treeNode);
-// rebuiltTree.traverseAndPrint(rebuiltTree.root());
 
         //Set tmp equal to the returned tree
         HuffBaseNode tmp = treeNode;
@@ -416,13 +426,15 @@ public class HuffModel
     {
         //If you read a 0, then return a new Internal Node with recursive calls
         //for the two parameter nodes.
-        if (in.read(1) == 0)
+        int bits = in.read(1);
+
+        if (bits == 0)
         {
             return new HuffInternalNode(rebuildTree(in), rebuildTree(in), 0);
         }
         //If you read a 1, return a leaf node, using the next 9 bits as the
         //value of the node.
-        else if (in.read(1) == 1)
+        else if (bits == 1)
         {
             int value = in.read(9);
             return new HuffLeafNode((char)value, 0);

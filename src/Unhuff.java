@@ -13,9 +13,9 @@ public class Unhuff
 
         try
         {
-//            compressedFile = new BitInputStream(new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\output.txt"));
-//            uncompressedFile = new BitOutputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\uncompressed.txt");
-//            unhuffer.initialize(compressedFile);
+            compressedFile = new BitInputStream(new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\output.txt"));
+            uncompressedFile = new BitOutputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\uncompressed.txt");
+            unhuffer.initialize(compressedFile);
 
             compressedFile = new BitInputStream(new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\output.txt"));
             uncompressedFile = new BitOutputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\uncompressed.txt");
