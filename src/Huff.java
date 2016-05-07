@@ -15,6 +15,7 @@ public class Huff
     public static void main(String[] args)
         throws IOException
     {
+
         FileInputStream text;
         String output;
 
@@ -22,7 +23,7 @@ public class Huff
         try
         {
 //            text = new FileInputStream("//Users//samjoynson//GitHub//File-Compressor//src//test.txt");
-            text = new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\test.txt");
+            text = new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\" + args[1]);
             output = "C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\output.txt";
         }
         //catch the exception if necessary
@@ -42,10 +43,18 @@ public class Huff
         //show the codings of the HuffModel
         testModel.showCodings();
 
-        text = new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\test.txt");
+        text = new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\" + args[1]);
+
+        boolean forceCompression = false;
+        if(args[0].equals("" + true))
+        {
+            forceCompression = true;
+        }
+
+//        System.out.println(forceCompression);
 
         //write the compressed file of the input
-        testModel.write(text, output, false);
-        System.out.println("Done compressing.");
+        testModel.write(text, output, forceCompression);
+        System.out.println("Compression process closed.");
     }
 }

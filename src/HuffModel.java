@@ -117,7 +117,7 @@ public class HuffModel
                 if (codeWithChar[i][0]
                     .equals("" + ((HuffLeafNode)node).element()))
                 {
-                    System.out.println(z + "-" + codeWithChar[i][0]);
+//                    System.out.println(z + "-" + codeWithChar[i][0]);
                     codeWithChar[i][1] = z;
                 }
             }
@@ -148,6 +148,71 @@ public class HuffModel
 
     }
 
+    // ----------------------------------------------------------
+    /**
+     * Calculates how much space each char will use in the compressed file.
+     * @return moreBits which is the size of the file added to its prior value
+     * before being passed to this method (cumulative).
+     */
+    public int fileSize()
+    {
+        int moreBits = 0;
+        int encodeSize = 0; //variable to hold the length of the encoding
+        for (int i = 0; i < NUM_CHARS; i++) //go through each possible character
+        {
+            //search the encoding array for a matching char
+            for (int j = 0; j < codeWithChar.length; j++)
+            {
+                if (codeWithChar[j][0].equals("" + ((char)i)))
+                {
+                    //get the encoding length when a match is found
+                    encodeSize = codeWithChar[j][1].length();
+                    break;
+                }
+            }
+            //add the number of bits this character will account for in the
+            //final file by multiplying by its frequency in the file
+            moreBits += charCount.getCount(i) * encodeSize;
+        }
+        return moreBits;
+    }
+
+    // ----------------------------------------------------------
+    /**
+     * Calculates how much space the tree takes up in the file.
+     * @param node is the node it starts from in the traversal
+     * @param numBits is the integer that counts the number of bits
+     * @return the number of bits the tree takes up added to the size of numBits
+     * when it was passed to the method. In this case, the size of the tree,
+     * added to the size of the magic number
+     */
+    public int countTree(HuffBaseNode node)
+    {
+        if (node == null)
+        {
+            return 0;
+        }
+        //if it's a leaf node, add 10 bits for the leading bit, plus the size
+        //of the element.
+        if (node.isLeaf())
+        {
+            return 10;
+        }
+
+        //if it's not a leaf node, add one to the counter and then recursively
+        //call the method to continue counting.
+        else
+        {
+            return 1 + countTree(((HuffInternalNode)node).left()) + countTree(((HuffInternalNode)node).right());
+        }
+    }
+
+    // ----------------------------------------------------------
+    /**
+     * Prints the tree by traversing it, printing leaf node values and printing
+     * "internal" if it hits an internal node.
+     * @param node is the node started from to traverse and print the tree.
+     */
     public void printTree(HuffBaseNode node)
     {
         if (node == null)
@@ -233,78 +298,197 @@ public class HuffModel
 
     // ----------------------------------------------------------
     /**
-     * This is the write method, which writes the compressed file.
+     * Calculates the size of the eventual compressed file. Used to decide if
+     * the file should be compressed when force is false.
+     * @param node the node to calculate the tree size with
+     * @return bits the number of bits the file will take up after compression
+     */
+    public int calcSize(HuffBaseNode node)
+    {
+        int bits = 0;
+        bits += 32; //size of the magic number
+        bits += countTree(node); //the space the tree takes up
+        System.out.println(bits);
+        bits += fileSize(); //the space the actual file takes up
+        System.out.println(bits);
+        return bits;
+    }
+
+    // ----------------------------------------------------------
+    /**
+     * Write a compressed version of the data read
+     * by the InputStream parameter, -- if the stream is
+     * not the same as the stream last passed
+     * to initialize, then compression won't be optimal, but will still
+     * work. If force is false, compression only occurs if it saves
+     * space. If force is true compression results even if no bits are saved.
+     * @param stream is the input stream to be compressed
+     * @param file specifes the file to be written with compressed data
+     * @param force indicates if compression forced
+     * @throws IOException
      */
     public void write(InputStream stream, String file, boolean force)
         throws IOException
     {
-        //create the output stream
-        BitOutputStream out = new BitOutputStream(file);
-        //write the magic number to file directly
-        out.write(BITS_PER_INT, MAGIC_NUMBER);
-        //traverse the tree and write the node and element structure in bits.
-        traverseAndWrite(charTree.root(), out);
-// out.write(1, 1);
-// out.write(9, PSEUDO_EOF);
-
-        //create the int that will hold the incoming bits and the input stream
-        int inbits = 0;
-        BitInputStream bit = new BitInputStream(stream);
-
-        /*While the next byte does not return -1, fill the codeWithChar array
-        * by reading the bits and comparing them with the character position
-        * in the codeWithChar array, then putting the corresponding encoding
-        * in the correct index.
-        */
-        while ((inbits = bit.read(BITS_PER_WORD)) != -1)
+        if(!force)
         {
-            String character = "";
-            String code = "";
-            // get the code computed in part II
-            // by searching the 2D array we created to hold the pairs
+            int expectedSize = calcSize(charTree.root());
+            int inputSize = 0;
+            //calculate input file size
+            //NUM_CHARS - 1, because we want to ignore PSEUDO_EOF character
+            for (int i = 0; i < NUM_CHARS - 1; i++)
+            {
+                inputSize += (charCount.getCount(i) * 8);
+            }
+            if(expectedSize < inputSize)
+            {
+                System.out.println("Expected compressed file size: " + expectedSize + " bits");
+                System.out.println("Input file size: " + inputSize + " bits");
+                System.out.println("Compressing...");
+              //create the output stream
+                BitOutputStream out = new BitOutputStream(file);
+                //write the magic number to file directly
+                out.write(BITS_PER_INT, MAGIC_NUMBER);
+                //traverse the tree and write the node and element structure in bits.
+                traverseAndWrite(charTree.root(), out);
+
+                //create the int that will hold the incoming bits and the input stream
+                int inbits = 0;
+                BitInputStream bit = new BitInputStream(stream);
+
+                /*While the next byte does not return -1, fill the codeWithChar array
+                * by reading the bits and comparing them with the character position
+                * in the codeWithChar array, then putting the corresponding encoding
+                * in the correct index.
+                */
+                while ((inbits = bit.read(BITS_PER_WORD)) != -1)
+                {
+                    String character = "";
+                    String code = "";
+                    // get the code computed in part II
+                    // by searching the 2D array we created to hold the pairs
+                    for (int i = 0; i < codeWithChar.length; i++)
+                    {
+                        character = "" + ((char)inbits);
+                        if (character.equals(codeWithChar[i][0]))
+                        {
+                            code = codeWithChar[i][1];
+                        }
+                    }
+
+                    // convert that code into an array of chars using .toCharArray()
+                    // method
+                    char[] codeArray = code.toCharArray();
+                    // go through the array of char and write each char using 1 bit
+                    for (int i = 0; i < codeArray.length; i++)
+                    {
+                        out.write(1, codeArray[i]);
+                    }
+                    // System.out.println("Wrote all the bits.");
+                }
+
+                // Here, outside the while loop, after it has printed all of the
+                // encodings
+                // create a string version of the PSEUDO_EOF value, and search for it in
+                // the 2D array. When found, get the corresponding encoding from the
+                // array and write it to the file.
+                String PEOF = "" + ((char)PSEUDO_EOF);
+//                System.out.println("About to write PEOF encoding.");
+                for (int i = 0; i < codeWithChar.length; i++)
+                {
+                    if (PEOF.equals(codeWithChar[i][0]))
+                    {
+                        String code = codeWithChar[i][1];
+                        char[] codeArray = code.toCharArray();
+                        for (int x = 0; x < codeArray.length; x++)
+                        {
+                            out.write(1, codeArray[x]);
+                            // System.out.print((int)codeArray[x]);
+                        }
+//                        System.out.println("Wrote PEOF encoding.");
+                    }
+                }
+                out.close();
+                bit.close();
+                System.out.println("File compressed.");
+            }
+            if(expectedSize >= inputSize)
+            {
+                System.out.println("Expected compressed file size: " + expectedSize + " bits");
+                System.out.println("Input file size: " + inputSize + " bits");
+                System.out.println("Stopping compression.");
+
+            }
+        }
+        if(force)
+        {
+            //create the output stream
+            BitOutputStream out = new BitOutputStream(file);
+            //write the magic number to file directly
+            out.write(BITS_PER_INT, MAGIC_NUMBER);
+            //traverse the tree and write the node and element structure in bits.
+            traverseAndWrite(charTree.root(), out);
+
+            //create the int that will hold the incoming bits and the input stream
+            int inbits = 0;
+            BitInputStream bit = new BitInputStream(stream);
+
+            /*While the next byte does not return -1, fill the codeWithChar array
+            * by reading the bits and comparing them with the character position
+            * in the codeWithChar array, then putting the corresponding encoding
+            * in the correct index.
+            */
+            while ((inbits = bit.read(BITS_PER_WORD)) != -1)
+            {
+                String character = "";
+                String code = "";
+                // get the code computed in part II
+                // by searching the 2D array we created to hold the pairs
+                for (int i = 0; i < codeWithChar.length; i++)
+                {
+                    character = "" + ((char)inbits);
+                    if (character.equals(codeWithChar[i][0]))
+                    {
+                        code = codeWithChar[i][1];
+                    }
+                }
+
+                // convert that code into an array of chars using .toCharArray()
+                // method
+                char[] codeArray = code.toCharArray();
+                // go through the array of char and write each char using 1 bit
+                for (int i = 0; i < codeArray.length; i++)
+                {
+                    out.write(1, codeArray[i]);
+                }
+                // System.out.println("Wrote all the bits.");
+            }
+
+            // Here, outside the while loop, after it has printed all of the
+            // encodings
+            // create a string version of the PSEUDO_EOF value, and search for it in
+            // the 2D array. When found, get the corresponding encoding from the
+            // array and write it to the file.
+            String PEOF = "" + ((char)PSEUDO_EOF);
+//            System.out.println("About to write PEOF encoding.");
             for (int i = 0; i < codeWithChar.length; i++)
             {
-                character = "" + ((char)inbits);
-                if (character.equals(codeWithChar[i][0]))
+                if (PEOF.equals(codeWithChar[i][0]))
                 {
-                    code = codeWithChar[i][1];
+                    String code = codeWithChar[i][1];
+                    char[] codeArray = code.toCharArray();
+                    for (int x = 0; x < codeArray.length; x++)
+                    {
+                        out.write(1, codeArray[x]);
+                        // System.out.print((int)codeArray[x]);
+                    }
+//                    System.out.println("Wrote PEOF encoding.");
                 }
             }
-
-            // convert that code into an array of chars using .toCharArray()
-            // method
-            char[] codeArray = code.toCharArray();
-            // go through the array of char and write each char using 1 bit
-            for (int i = 0; i < codeArray.length; i++)
-            {
-                out.write(1, codeArray[i]);
-            }
-            // System.out.println("Wrote all the bits.");
+            out.close();
+            bit.close();
+            System.out.println("File compressed.");
         }
-
-        // Here, outside the while loop, after it has printed all of the
-        // encodings
-        // create a string version of the PSEUDO_EOF value, and search for it in
-        // the 2D array. When found, get the corresponding encoding from the
-        // array and write it to the file.
-        String PEOF = "" + ((char)PSEUDO_EOF);
-        System.out.println("About to write PEOF encoding.");
-        for (int i = 0; i < codeWithChar.length; i++)
-        {
-            if (PEOF.equals(codeWithChar[i][0]))
-            {
-                String code = codeWithChar[i][1];
-                char[] codeArray = code.toCharArray();
-                for (int x = 0; x < codeArray.length; x++)
-                {
-                    out.write(1, codeArray[x]);
-                    // System.out.print((int)codeArray[x]);
-                }
-                System.out.println("Wrote PEOF encoding.");
-            }
-        }
-        out.close();
-        bit.close();
     }
 
 
