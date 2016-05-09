@@ -2,9 +2,25 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class Unhuff
+// -------------------------------------------------------------------------
+/**
+ *  This is the main class that uncompresses files. Calling this will uncompress
+ *  a file.
+ *  @args file_to_uncompress : pass the path of the file you want to uncompress
+ *
+ *  @author Tyler Burns
+ *  @author Sam Joynson
+ *  @version May 8, 2016
+ */
+public class unhuff
 {
 
+    // ----------------------------------------------------------
+    /**
+     * Main method of main class unhuff. This is what executes the uncompressing
+     * @param args : these are the args passed to the class when it's called
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException
     {
         BitInputStream compressedFile = null;
@@ -13,12 +29,11 @@ public class Unhuff
 
         try
         {
-            compressedFile = new BitInputStream(new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\output.txt"));
-            uncompressedFile = new BitOutputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\" + args[0]);
+            compressedFile = new BitInputStream(new FileInputStream(args[0]));
             unhuffer.initialize(compressedFile);
 
-            compressedFile = new BitInputStream(new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\output.txt"));
-            uncompressedFile = new BitOutputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\" + args[0]);
+            compressedFile = new BitInputStream(new FileInputStream(args[0]));
+            uncompressedFile = new BitOutputStream(args[0] + ".unhuff");
             unhuffer.uncompress(compressedFile, uncompressedFile);
 
             compressedFile.close();

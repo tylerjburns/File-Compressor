@@ -2,13 +2,24 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-public class Huff
+// -------------------------------------------------------------------------
+/**
+ *  Main class for compressing text files. Executing this class on a file will
+ *  compress it.
+ *  @args force : pass true to force compression even if the file will be bigger
+ *  @args file_to_compress : pass the path of the file you wish to compress
+ *
+ *  @author Tyler Burns
+ *  @author Sam Joynson
+ *  @version May 8, 2016
+ */
+public class huff
 
 {
 
     // ----------------------------------------------------------
     /**
-     * Main method in Huff. This is what executes actual file compression
+     * Main method in huff. This is what executes actual file compression
      * @param args these are the args passed to the main method.
      * @throws IOException
      */
@@ -22,9 +33,8 @@ public class Huff
         //create the input and output references and streams
         try
         {
-//            text = new FileInputStream("//Users//samjoynson//GitHub//File-Compressor//src//test.txt");
-            text = new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\" + args[1]);
-            output = "C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\output.txt";
+            text = new FileInputStream(args[1]);
+            output = args[1] + ".huff";
         }
         //catch the exception if necessary
         catch (FileNotFoundException e)
@@ -43,7 +53,7 @@ public class Huff
         //show the codings of the HuffModel
         testModel.showCodings();
 
-        text = new FileInputStream("C:\\Users\\Tibs\\CSE17\\File Compressor\\src\\" + args[1]);
+        text = new FileInputStream(args[1]);
 
         boolean forceCompression = false;
         if(args[0].equals("" + true))

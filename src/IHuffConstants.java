@@ -1,6 +1,6 @@
 
 /**
- * Global constants used in Huff/Unhuff. Clients needing these
+ * Global constants used in huff/unhuff. Clients needing these
  * values should implement this interface or access the
  * values directly, e.g., as <code>IHuffConstants.BITS_PER_WORD</code>. However,
  * implementing the interface is preferred in which case

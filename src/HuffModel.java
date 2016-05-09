@@ -308,9 +308,9 @@ public class HuffModel
         int bits = 0;
         bits += 32; //size of the magic number
         bits += countTree(node); //the space the tree takes up
-        System.out.println(bits);
+//        System.out.println(bits);
         bits += fileSize(); //the space the actual file takes up
-        System.out.println(bits);
+//        System.out.println(bits);
         return bits;
     }
 
@@ -330,16 +330,16 @@ public class HuffModel
     public void write(InputStream stream, String file, boolean force)
         throws IOException
     {
+        int expectedSize = calcSize(charTree.root());
+        int inputSize = 0;
+        //calculate input file size
+        //NUM_CHARS - 1, because we want to ignore PSEUDO_EOF character
+        for (int i = 0; i < NUM_CHARS - 1; i++)
+        {
+            inputSize += (charCount.getCount(i) * 8);
+        }
         if(!force)
         {
-            int expectedSize = calcSize(charTree.root());
-            int inputSize = 0;
-            //calculate input file size
-            //NUM_CHARS - 1, because we want to ignore PSEUDO_EOF character
-            for (int i = 0; i < NUM_CHARS - 1; i++)
-            {
-                inputSize += (charCount.getCount(i) * 8);
-            }
             if(expectedSize < inputSize)
             {
                 System.out.println("Expected compressed file size: " + expectedSize + " bits");
@@ -422,6 +422,9 @@ public class HuffModel
         }
         if(force)
         {
+            System.out.println("Expected compressed file size: " + expectedSize + " bits");
+            System.out.println("Input file size: " + inputSize + " bits");
+            System.out.println("Compressing...");
             //create the output stream
             BitOutputStream out = new BitOutputStream(file);
             //write the magic number to file directly
@@ -528,6 +531,7 @@ public class HuffModel
     public void uncompress(InputStream in, OutputStream out)
         throws IOException
     {
+        System.out.println("Decompressing...");
         //create the input and output streams
         BitInputStream bis = (BitInputStream)in;
         BitOutputStream bos = (BitOutputStream)out;
@@ -595,6 +599,7 @@ public class HuffModel
         }
         in.close();
         out.close();
+        System.out.println("Finished decompressing.");
     }
 
 
